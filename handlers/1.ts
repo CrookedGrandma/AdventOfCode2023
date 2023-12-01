@@ -30,8 +30,7 @@ export class H1 extends Handler {
 
     runB(input: string[]): string[] | undefined {
         const values: number[] = [];
-        for (let line of input) {
-            line = line.trim();
+        for (const line of input) {
             if (!line)
                 break;
             const regex = /\d|(one)|(two)|(three)|(four)|(five)|(six)|(seven)|(eight)|(nine)/g;

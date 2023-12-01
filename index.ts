@@ -5,7 +5,7 @@ const handlerNames = fs.readdirSync("handlers/").sort((a, b) => parseInt(a) - pa
 const latestHandlerName = handlerNames[handlerNames.length - 1];
 const handlerNumber = latestHandlerName.split(".")[0];
 
-const input = fs.readFileSync(`input/${handlerNumber}.txt`).toString().split("\n");
+const input = fs.readFileSync(`input/${handlerNumber}.txt`).toString().split("\n").map(l => l.trim());
 
 const handler = new(Object.values(require(`./handlers/${latestHandlerName}`))[0] as new() => Handler);
 
