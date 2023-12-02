@@ -7,7 +7,9 @@ const handlerNames = fs.readdirSync("handlers/").sort((a, b) => parseInt(a) - pa
 const latestHandlerName = handlerNames[handlerNames.length - 1];
 const handlerNumber = latestHandlerName.split(".")[0] + (USE_EXAMPLE ? "E" : "");
 
-const input = fs.readFileSync(`input/${handlerNumber}.txt`).toString().split("\n").map(l => l.trim());
+console.log(`CHALLENGE NUMBER: ${handlerNumber}\n`);
+
+const input = fs.readFileSync(`input/${handlerNumber}.txt`).toString().split("\n").map(l => l.trim()).filter(l => !!l);
 
 const handler = new(Object.values(require(`./handlers/${latestHandlerName}`))[0] as new() => Handler);
 
