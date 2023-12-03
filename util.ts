@@ -34,3 +34,16 @@ export function indicesOf(needle: string, haystack: string) {
 export function isNumber(obj: any): obj is number {
     return Number.isFinite(obj);
 }
+
+export function isInteger(str: string): number | false {
+    const parsed = parseInt(str);
+    if (isNaN(parsed))
+        return false;
+    return parsed;
+}
+
+export function assertNotFalsy<T>(obj: T | undefined): T {
+    if (!obj)
+        throw Error(`Falsy value asserted to be not falsy: ${obj}`);
+    return obj;
+}
