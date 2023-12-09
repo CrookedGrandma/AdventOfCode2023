@@ -47,3 +47,13 @@ export function assertNotFalsy<T>(obj: T | undefined): T {
         throw Error(`Falsy value asserted to be not falsy: ${obj}`);
     return obj;
 }
+
+export function stringToCharDict(str: string): Record<string, number> {
+    const dict: Record<string, number> = {};
+    for (const c of str) {
+        if (!(c in dict))
+            dict[c] = 0;
+        dict[c]++;
+    }
+    return dict;
+}
