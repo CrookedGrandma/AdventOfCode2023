@@ -1,8 +1,10 @@
 import {Handler} from "../handler";
+import {leastCommonMultipleArray} from "../util";
 
 export class H8 extends Handler {
     network: Record<string, Node> = {};
     instructions: string = "";
+    startNodes: Node[] = [];
 
     runA(input: string[]): string[] {
         this.instructions = input[0];
@@ -11,7 +13,10 @@ export class H8 extends Handler {
             const match = RegExp(/([A-Z]{3}) = \(([A-Z]{3}), ([A-Z]{3})\)/).exec(line);
             if (!match)
                 throw Error("broski");
-            this.network[match[1]] = new Node(match[1], match[2], match[3]);
+            const node = new Node(match[1], match[2], match[3]);
+            this.network[match[1]] = node;
+            if (node.label.endsWith("A"))
+                this.startNodes.push(node);
         }
 
         let node = this.network["AAA"];
@@ -19,12 +24,7 @@ export class H8 extends Handler {
         let instructionIndex = 0;
         while (node.label != "ZZZ") {
             const instruction = this.instructions[instructionIndex];
-            if (instruction == "L")
-                node = this.network[node.left];
-            else if (instruction == "R")
-                node = this.network[node.right];
-            else
-                throw Error ("wtf");
+            node = node.step(instruction, this.network);
             instructionIndex = (instructionIndex + 1) % this.instructions.length;
             count++;
         }
@@ -33,7 +33,21 @@ export class H8 extends Handler {
     }
 
     runB(input: string[]): string[] | undefined {
-        return undefined;
+        const steps: number[] = [];
+        for (const startNode of this.startNodes) {
+            let node = startNode;
+            let count = 0;
+            let instructionIndex = 0;
+            while (!node.label.endsWith("Z")) {
+                const instruction = this.instructions[instructionIndex];
+                node = node.step(instruction, this.network);
+                instructionIndex = (instructionIndex + 1) % this.instructions.length;
+                count++;
+            }
+            steps.push(count);
+        }
+        const count = leastCommonMultipleArray(steps);
+        return [count.toString()];
     }
 
 }
@@ -49,5 +63,14 @@ class Node {
         this.label = label;
         this.left = left;
         this.right = right;
+    }
+
+    step(instruction: string, network: Record<string, Node>): Node {
+        if (instruction == "L")
+            return network[this.left];
+        else if (instruction == "R")
+            return network[this.right];
+        else
+            throw Error("wtf");
     }
 }
