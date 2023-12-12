@@ -57,3 +57,21 @@ export function stringToCharDict(str: string): Record<string, number> {
     }
     return dict;
 }
+
+export function leastCommonMultipleArray(arr: number[]): number {
+    if (arr.length == 0)
+        throw Error("Empty array passed");
+    arr.sort((a, b) => a - b);
+    let multiple = arr[0];
+    for (const a of arr.slice(1))
+        multiple = leastCommonMultiple(multiple, a);
+    return multiple;
+}
+
+export function leastCommonMultiple(a: number, b: number): number {
+    return Math.abs(a) * (Math.abs(b) / greatestCommonDivisor(a, b));
+}
+
+export function greatestCommonDivisor(a: number, b: number): number {
+    return b == 0 ? a : greatestCommonDivisor(b, a % b);
+}
