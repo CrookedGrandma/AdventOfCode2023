@@ -75,3 +75,36 @@ export function leastCommonMultiple(a: number, b: number): number {
 export function greatestCommonDivisor(a: number, b: number): number {
     return b == 0 ? a : greatestCommonDivisor(b, a % b);
 }
+
+export enum Direction {
+    Up,
+    Right,
+    Down,
+    Left,
+}
+
+export function opposite(dir: Direction) {
+    return ((dir + 2) % 4) as Direction;
+}
+
+export function fourAround(x: number, y: number) {
+    return [
+        [x, y - 1],
+        [x + 1, y],
+        [x, y + 1],
+        [x - 1, y],
+    ];
+}
+
+export function eightAround(x: number, y: number) {
+    return [
+        [x,     y - 1],
+        [x + 1, y - 1],
+        [x + 1, y],
+        [x + 1, y + 1],
+        [x,     y + 1],
+        [x - 1, y + 1],
+        [x - 1, y],
+        [x - 1, y - 1],
+    ];
+}
