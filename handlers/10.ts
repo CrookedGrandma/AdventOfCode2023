@@ -1,5 +1,5 @@
 import {Handler} from "../handler";
-import {Direction, fourAround, maxBy, opposite} from "../util";
+import {Direction, fourAround, opposite, setCharAt} from "../util";
 
 export class H10 extends Handler {
     private startPipe: Pipe = undefined as unknown as Pipe;
@@ -20,7 +20,47 @@ export class H10 extends Handler {
     }
 
     runB(input: string[]): string[] | undefined {
-        return undefined;
+        const allPipes = [this.startPipe, ...this.cyclePipes];
+        let total = 0;
+        for (let y = 0; y < input.length; y++) {
+            let line = input[y];
+            for (let x = 0; x < line.length; x++) {
+                if (allPipes.some(p => p.x == x && p.y == y))
+                    continue;
+                let segments = 0;
+                let prevDir: Direction | undefined = undefined;
+                if (y == 5 && x == 5)
+                    debugger;
+                for (let fx = x + 1; fx < line.length; fx++) {
+                    const pipeHere = allPipes.find(p => p.x == fx && p.y == y);
+                    if (!pipeHere)
+                        continue;
+                    if (!pipeHere.canGo(Direction.Right)) {
+                        if (prevDir !== undefined) {
+                            const newDir = [Direction.Up, Direction.Down, Direction.Left].find(d => pipeHere.canGo(d));
+                            if (newDir != opposite(prevDir))
+                                segments++;
+                            prevDir = undefined;
+                        }
+                        else
+                            segments++;
+                        continue;
+                    }
+                    if (prevDir === undefined) {
+                        prevDir = [Direction.Up, Direction.Down, Direction.Left].find(d => matches(pipeHere.char, d));
+                    }
+                }
+                if (segments % 2 == 1) {
+                    line = setCharAt(line, x, "I");
+                    total++;
+                }
+                else {
+                    line = setCharAt(line, x, "O");
+                }
+            }
+            console.log(line);
+        }
+        return [total.toString()];
     }
 
     findCycle(startPipe: Pipe, cycleArray: Pipe[], input: string[]) {
