@@ -114,3 +114,62 @@ export function setCharAt(str: string, index: number, chr: string) {
         return str;
     return str.substring(0, index) + chr + str.substring(index + 1);
 }
+
+export function getDistinctPairs<T>(array: T[]) {
+    const pairs: ([a: T, b: T])[] = [];
+    for (let i = 0; i < array.length - 1; i++)
+        for (let j = i + 1; j < array.length; j++)
+            pairs.push([array[i], array[j]]);
+    return pairs;
+}
+
+export function manhattanDistance(a: Position, b: Position) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}
+
+export function getShortestPathAStar(from: Position, to: Position, neighbours: (from: Position) => Position[], heur: (from: Position) => number, costOfStep: (a: Position, b: Position, goal: Position) => number): Position[] {
+    const openSet: AStarNode<Position>[] = [{ item: from, gScore: 0, fScore: heur(from) }];
+    const explored: AStarNode<Position>[] = [openSet[0]];
+
+    while (openSet.length > 0) {
+        const current = minBy(openSet, p => p.fScore);
+        if (positionsEqual(current.item, to)) {
+            const path: Position[] = [];
+            const endNode = explored.find(p => positionsEqual(p.item, to));
+            if (!endNode)
+                throw Error("something's up");
+            let node = endNode;
+            while (node.cameFrom) {
+                path.splice(0, 0, node.item);
+                node = node.cameFrom;
+            }
+            return path;
+        }
+
+        const currentIndex = openSet.findIndex(p => positionsEqual(p.item, current.item));
+        openSet.splice(currentIndex, 1);
+        for (const neighbour of neighbours(current.item)) {
+            const newG = current.gScore + costOfStep(current.item, neighbour, to);
+            if (!Number.isFinite(newG))
+                continue;
+            let exploredNeighbour = explored.find(p => positionsEqual(p.item, neighbour));
+            if (!exploredNeighbour) {
+                exploredNeighbour = { item: neighbour, gScore: Infinity, fScore: Infinity };
+                explored.push(exploredNeighbour);
+            }
+            if (newG < exploredNeighbour.gScore) {
+                exploredNeighbour.cameFrom = current;
+                exploredNeighbour.gScore = newG;
+                exploredNeighbour.fScore = newG + heur(neighbour);
+                if (!openSet.some(p => positionsEqual(p.item, neighbour)))
+                    openSet.push(exploredNeighbour);
+            }
+        }
+    }
+
+    throw Error("no path found");
+}
+
+export function positionsEqual(a: Position, b: Position) {
+    return a.x == b.x && a.y == b.y;
+}

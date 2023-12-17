@@ -11,7 +11,7 @@ console.log(`CHALLENGE NUMBER: ${handlerNumber}\n`);
 
 const input = fs.readFileSync(`input/${handlerNumber}.txt`).toString().split("\n").map(l => l.trim()).filter(l => !!l);
 
-const handler = new(Object.values(require(`./handlers/${latestHandlerName}`))[0] as new() => Handler);
+const handler = new(Object.values(require(`./handlers/${latestHandlerName}`))[0] as new(input: string[]) => Handler)(input);
 
 
 const outputA = handler.runA(input);
