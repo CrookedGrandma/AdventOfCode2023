@@ -1,5 +1,5 @@
 import {Handler} from "../handler";
-import {assertNotFalsy, isInteger, sum} from "../util";
+import {assertNotFalsy, eightAround, isInteger, sum} from "../util";
 
 type ANumber = PartNumber | NotAPartNumber;
 
@@ -124,16 +124,7 @@ export class H3 extends Handler {
     }
 
     private anySymbolsAround(x: number, y: number, input: string[]): Symbol | false {
-        const around = [
-            [x,     y - 1],
-            [x + 1, y - 1],
-            [x + 1, y],
-            [x + 1, y + 1],
-            [x,     y + 1],
-            [x - 1, y + 1],
-            [x - 1, y],
-            [x - 1, y - 1],
-        ];
+        const around = eightAround(x, y);
         for (const [testX, testY] of around) {
             const symbol = this.symbolAt(testX, testY, input);
             if (symbol !== false)
