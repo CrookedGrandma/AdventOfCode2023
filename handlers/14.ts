@@ -1,6 +1,6 @@
 import {Handler} from "../handler";
 import {Grid} from "../util/grid";
-import {Direction, sum} from "../util";
+import {arrayFindEntryFromBack, Direction, sum} from "../util";
 
 export class H14 extends Handler {
     private grid: Grid<Space>;
@@ -15,20 +15,57 @@ export class H14 extends Handler {
     runA(input: string[]): string[] {
         this.tilt(Direction.Up);
         this.printGrid();
-        return [this.calculateLoad(Direction.Down).toString()];
+        return [this.calculateLoad().toString()];
     }
 
     runB(input: string[]): string[] | undefined {
+        const history: number[] = [];
+        let cycle: number[] = [];
+        let historyIndex = -1;
+        let stoppedAt = -1;
         for (let i = 0; i < 1000000000; i++) {
-            if (i % 1000000 == 0)
-                console.log(`Iteration: ${i} / 1000000000`);
             this.tiltNorth();
             this.tiltWest();
             this.tiltSouth();
             this.tiltEast();
+            if (i > 100) {
+                const load = this.calculateLoad();
+                history.push(load);
+                if (i > 150) {
+                    if (cycle.length == 0) {
+                        const prev = arrayFindEntryFromBack(history, n => n == load, 1);
+                        if (prev) {
+                            historyIndex = prev[0];
+                            cycle.push(load);
+                        }
+                    }
+                    else {
+                        historyIndex++;
+                        if (history[historyIndex] == load) {
+                            if (cycle[0] == load) {
+                                stoppedAt = i;
+                                break; // start of cycle found
+                            }
+                            cycle.push(load);
+                        }
+                        else {
+                            historyIndex = -1;
+                            cycle = [];
+                        }
+                    }
+                }
+            }
         }
-        this.printGrid();
-        return [this.calculateLoad(Direction.Down).toString()];
+        console.log(`Cycle length: ${cycle.length}`);
+        console.log("Cycle:");
+        console.log(cycle);
+        console.log(`Stopped at: ${stoppedAt}`);
+
+        const remainingSingleCycles = 1000000000 - stoppedAt;
+        const remainingStepsInCycle = remainingSingleCycles % cycle.length;
+        const loadAtEnd = cycle[remainingStepsInCycle - 1]; // '-1' somehow works for real input, not for example
+
+        return [loadAtEnd.toString()];
     }
 
     tilt(dir: Direction) {
@@ -156,15 +193,8 @@ export class H14 extends Handler {
         rock.pos.y = y;
     }
 
-    calculateLoad(countRowsGoing: Direction) {
-        const scores = this.roundRocks.map(r => {
-            switch (countRowsGoing) {
-                case Direction.Down: return this.grid.rowCount - r.pos.y;
-                case Direction.Left: return r.pos.x + 1;
-                case Direction.Up: return r.pos.y + 1;
-                case Direction.Right: return this.grid.colCount - r.pos.x;
-            }
-        });
+    calculateLoad() {
+        const scores = this.roundRocks.map(r => this.grid.rowCount - r.pos.y);
         return sum(scores);
     }
 

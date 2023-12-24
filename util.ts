@@ -177,3 +177,11 @@ export function positionsEqual(a: Position, b: Position) {
 export function arraysEqual<T>(a: T[], b: T[]) {
     return a.every((o, i) => o == b[i]);
 }
+
+export function arrayFindEntryFromBack<T>(array: T[], predicate: (el: T) => boolean, offset: number = 0): [index: number, el: T] | undefined {
+    for (let i = array.length - offset - 1; i >= 0; i++) {
+        const el = array[i];
+        if (predicate(el))
+            return [i, el];
+    }
+}
