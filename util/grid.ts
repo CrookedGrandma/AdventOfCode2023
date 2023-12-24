@@ -15,6 +15,10 @@ export class Grid<T> {
         return this.columns[i];
     }
 
+    getItems() {
+        return this.rows.flat();
+    }
+
     getItem(iCol: number, iRow: number) {
         return this.rows[iRow][iCol];
     }
