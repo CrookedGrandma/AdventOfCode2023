@@ -9,7 +9,7 @@ const handlerNumber = latestHandlerName.split(".")[0] + (USE_EXAMPLE ? "E" : "")
 
 console.log(`CHALLENGE NUMBER: ${handlerNumber}\n`);
 
-const input = fs.readFileSync(`input/${handlerNumber}.txt`).toString().split("\n").map(l => l.trim()).filter(l => !!l);
+const input = fs.readFileSync(`input/${handlerNumber}.txt`).toString().split("\n").map(l => l.trim());
 
 const handler = new(Object.values(require(`./handlers/${latestHandlerName}`))[0] as new(input: string[]) => Handler)(input);
 

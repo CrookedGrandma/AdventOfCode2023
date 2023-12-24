@@ -173,3 +173,7 @@ export function getShortestPathAStar(from: Position, to: Position, neighbours: (
 export function positionsEqual(a: Position, b: Position) {
     return a.x == b.x && a.y == b.y;
 }
+
+export function arraysEqual<T>(a: T[], b: T[]) {
+    return a.every((o, i) => o == b[i]);
+}
