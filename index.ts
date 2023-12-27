@@ -1,7 +1,7 @@
 import fs from "fs";
 import {Handler} from "./handler";
 
-const USE_EXAMPLE = false;
+const USE_EXAMPLE = true;
 
 const handlerNames = fs.readdirSync("handlers/").sort((a, b) => parseInt(a) - parseInt(b));
 const latestHandlerName = handlerNames[handlerNames.length - 1];

@@ -96,7 +96,7 @@ export function opposite(dir: Direction) {
     return ((dir + 2) % 4) as Direction;
 }
 
-export function fourAround(x: number, y: number) {
+export function fourAround(x: number, y: number): [x: number, y: number][] {
     return [
         [x, y - 1],
         [x + 1, y],
@@ -105,7 +105,7 @@ export function fourAround(x: number, y: number) {
     ];
 }
 
-export function eightAround(x: number, y: number) {
+export function eightAround(x: number, y: number): [x: number, y: number][] {
     return [
         [x,     y - 1],
         [x + 1, y - 1],
@@ -136,15 +136,16 @@ export function manhattanDistance(a: Position, b: Position) {
     return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
-export function getShortestPathAStar(from: Position, to: Position, neighbours: (from: Position) => Position[], heur: (from: Position) => number, costOfStep: (a: Position, b: Position, goal: Position) => number): Position[] {
-    const openSet: AStarNode<Position>[] = [{ item: from, gScore: 0, fScore: heur(from) }];
-    const explored: AStarNode<Position>[] = [openSet[0]];
+export function getShortestPathAStar<T>(from: T, to: T, neighbours: (from: T) => T[], heur: (from: T) => number, costOfStep: (a: T, b: T, goal: T) => number, itemsEqual: (a: T, b: T) => boolean, itemEqualToGoal?: (a: T, goal: T) => boolean): T[] {
+    const openSet: AStarNode<T>[] = [{ item: from, gScore: 0, fScore: heur(from) }];
+    const explored: AStarNode<T>[] = [openSet[0]];
+    const goalComparer = itemEqualToGoal ?? itemsEqual;
 
     while (openSet.length > 0) {
         const current = minBy(openSet, p => p.fScore);
-        if (positionsEqual(current.item, to)) {
-            const path: Position[] = [];
-            const endNode = explored.find(p => positionsEqual(p.item, to));
+        if (goalComparer(current.item, to)) {
+            const path: T[] = [];
+            const endNode = explored.find(p => goalComparer(p.item, to));
             if (!endNode)
                 throw Error("something's up");
             let node = endNode;
@@ -155,13 +156,13 @@ export function getShortestPathAStar(from: Position, to: Position, neighbours: (
             return path;
         }
 
-        const currentIndex = openSet.findIndex(p => positionsEqual(p.item, current.item));
+        const currentIndex = openSet.findIndex(p => itemsEqual(p.item, current.item));
         openSet.splice(currentIndex, 1);
         for (const neighbour of neighbours(current.item)) {
             const newG = current.gScore + costOfStep(current.item, neighbour, to);
             if (!Number.isFinite(newG))
                 continue;
-            let exploredNeighbour = explored.find(p => positionsEqual(p.item, neighbour));
+            let exploredNeighbour = explored.find(p => itemsEqual(p.item, neighbour));
             if (!exploredNeighbour) {
                 exploredNeighbour = { item: neighbour, gScore: Infinity, fScore: Infinity };
                 explored.push(exploredNeighbour);
@@ -170,7 +171,7 @@ export function getShortestPathAStar(from: Position, to: Position, neighbours: (
                 exploredNeighbour.cameFrom = current;
                 exploredNeighbour.gScore = newG;
                 exploredNeighbour.fScore = newG + heur(neighbour);
-                if (!openSet.some(p => positionsEqual(p.item, neighbour)))
+                if (!openSet.some(p => itemsEqual(p.item, neighbour)))
                     openSet.push(exploredNeighbour);
             }
         }
@@ -195,11 +196,28 @@ export function arrayFindEntryFromBack<T>(array: T[], predicate: (el: T) => bool
     }
 }
 
-export function stepsInDirection(pos: Position, dir: Direction, steps: number = 1): Position {
+export function stepsInDirection<T extends Position>(pos: T, dir: Direction, steps: number = 1): T {
+    const copy = JSON.parse(JSON.stringify(pos));
     switch (dir) {
-        case Direction.Up: return { x: pos.x, y: pos.y - 1 };
-        case Direction.Right: return { x: pos.x + 1, y: pos.y };
-        case Direction.Down: return { x: pos.x, y: pos.y + 1 };
-        case Direction.Left: return { x: pos.x - 1, y: pos.y };
+        case Direction.Up: copy.y--; break;
+        case Direction.Right: copy.x++; break;
+        case Direction.Down: copy.y++; break;
+        case Direction.Left: copy.x--; break;
     }
+    return copy;
+}
+
+export function bound<T extends Position>(poss: T[], maxXExcl: number, maxYExcl: number, minX: number = 0, minY: number = 0): T[] {
+    return poss.filter(pos => pos.x >= minX && pos.x < maxXExcl && pos.y >= minY && pos.y < maxYExcl);
+}
+
+export function directionFromTo(from: Position, to: Position) {
+    const xDiff = to.x - from.x;
+    const yDiff = to.y - from.y;
+    if (yDiff == 0) {
+        if (xDiff == 0)
+            throw Error("same position");
+        return xDiff > 0 ? Direction.Right : Direction.Left;
+    }
+    return yDiff > 0 ? Direction.Down : Direction.Up;
 }
