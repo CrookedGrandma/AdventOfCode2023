@@ -39,4 +39,11 @@ export class Grid<T> {
     get itemCount() {
         return this.colCount * this.rowCount;
     }
+
+    printGrid(mapping?: (item: T) => string) {
+        const useMapping = !!mapping;
+        for (let y = 0; y < this.rowCount; y++) {
+            console.log(this.getRow(y).map(i => useMapping ? mapping(i) : i).join(""));
+        }
+    }
 }

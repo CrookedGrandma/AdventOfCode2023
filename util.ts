@@ -83,6 +83,15 @@ export enum Direction {
     Left,
 }
 
+export function dirToStr(dir: Direction) {
+    switch (dir) {
+        case Direction.Up: return "^";
+        case Direction.Right: return ">";
+        case Direction.Down: return "v";
+        case Direction.Left: return "<";
+    }
+}
+
 export function opposite(dir: Direction) {
     return ((dir + 2) % 4) as Direction;
 }
@@ -179,9 +188,18 @@ export function arraysEqual<T>(a: T[], b: T[]) {
 }
 
 export function arrayFindEntryFromBack<T>(array: T[], predicate: (el: T) => boolean, offset: number = 0): [index: number, el: T] | undefined {
-    for (let i = array.length - offset - 1; i >= 0; i++) {
+    for (let i = array.length - offset - 1; i >= 0; i--) {
         const el = array[i];
         if (predicate(el))
             return [i, el];
+    }
+}
+
+export function stepsInDirection(pos: Position, dir: Direction, steps: number = 1): Position {
+    switch (dir) {
+        case Direction.Up: return { x: pos.x, y: pos.y - 1 };
+        case Direction.Right: return { x: pos.x + 1, y: pos.y };
+        case Direction.Down: return { x: pos.x, y: pos.y + 1 };
+        case Direction.Left: return { x: pos.x - 1, y: pos.y };
     }
 }
